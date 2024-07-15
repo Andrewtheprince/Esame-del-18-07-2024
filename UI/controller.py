@@ -37,6 +37,7 @@ class Controller:
         values = self._model.getChromosomeVals()
         self._view.ddA.options = list(map(lambda x: ft.dropdown.Option(x), values))
         self._view.ddB.options = list(map(lambda x: ft.dropdown.Option(x), values))
+
     def fillDDLocalization(self):
         values = self._model.getLocalization()
         self._view.ddDettagli.options = list(map(lambda x: ft.dropdown.Option(x), values))

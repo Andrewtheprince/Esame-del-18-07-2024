@@ -8,7 +8,7 @@ class View(ft.UserControl):
         self._page = page
         self._page.title = "TdP 2024 - Esame del 04/07/2024 - A"
         self._page.horizontal_alignment = 'CENTER'
-        self._page.window_width = 950
+        self._page.window_width = 1200
         self._page.theme_mode = ft.ThemeMode.LIGHT
         # controller (it is not initialized. Must be initialized in the main, after the controller is created)
         self._controller = None
@@ -40,8 +40,8 @@ class View(ft.UserControl):
                                            tooltip="Crea il grafo",
                                            on_click=self._controller.handle_graph)
 
-        self.ddDettagli = ft.Dropdown(label="Cromosoma Dettaglio",
-                                   hint_text="Cromosoma per dettagli.", width=200)
+        self.ddDettagli = ft.Dropdown(label="Localization",
+                                   hint_text="Localization", width=200)
 
         self.btn_dettagli = ft.ElevatedButton(text="Dettagli",
                                           tooltip="Stampa dettagli",
