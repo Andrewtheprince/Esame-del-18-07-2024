@@ -9,6 +9,7 @@ class View(ft.UserControl):
         self._page.title = "TdP 2024 - Esame del 04/07/2024 - A"
         self._page.horizontal_alignment = 'CENTER'
         self._page.window_width = 1200
+        self._page.window_center()
         self._page.theme_mode = ft.ThemeMode.LIGHT
         # controller (it is not initialized. Must be initialized in the main, after the controller is created)
         self._controller = None
