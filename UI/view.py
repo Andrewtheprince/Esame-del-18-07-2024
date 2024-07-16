@@ -9,6 +9,7 @@ class View(ft.UserControl):
         self._page.title = "TdP 2024 - Esame del 04/07/2024 - A"
         self._page.horizontal_alignment = 'CENTER'
         self._page.window_width = 1200
+        self._page.window_height = 900
         self._page.window_center()
         self._page.theme_mode = ft.ThemeMode.LIGHT
         # controller (it is not initialized. Must be initialized in the main, after the controller is created)
@@ -16,14 +17,15 @@ class View(ft.UserControl):
         # title
         self._title = None
         # first row
-        self.ddA = None
-        self.ddB = None
-        self.ddDettagli = None
-        self.btn_graph = None
-        self.btn_path = None
+        self.dd_min_ch: ft.Dropdown = None
+        self.dd_max_ch: ft.Dropdown = None
+        self.dd_localization: ft.Dropdown = None
+        self.btn_graph: ft.ElevatedButton = None
+        self.btn_dettagli: ft.ElevatedButton = None
+        self.btn_path: ft.ElevatedButton = None
         # second row
-        self.txt_result1 = None  # Qui scrivere gli outputs del punto 1
-        self.txt_result2 = None  # Qui scrivere gli outputs del punto 2
+        self.txt_result1: ft.ListView = None  # Qui scrivere gli outputs del punto 1
+        self.txt_result2: ft.ListView = None  # Qui scrivere gli outputs del punto 2
 
     def load_interface(self):
         # title
@@ -31,30 +33,31 @@ class View(ft.UserControl):
         self._page.controls.append(self._title)
 
         # First row with some controls
-        self.ddA = ft.Dropdown(label="Cromosoma min",
-                                  hint_text="Selezionare il valore minimo di cromosoma.", width=200)
+        self.dd_min_ch = ft.Dropdown(label="Cromosoma min",
+                               hint_text="Selezionare il valore minimo di cromosoma.", width=200)
 
-        self.ddB = ft.Dropdown(label="Cromosoma max",
-                                   hint_text="Selezionare il valore massimo di cromosoma.", width=200)
+        self.dd_max_ch = ft.Dropdown(label="Cromosoma max",
+                               hint_text="Selezionare il valore massimo di cromosoma.", width=200)
 
         self.btn_graph = ft.ElevatedButton(text="Crea Grafo",
                                            tooltip="Crea il grafo",
                                            on_click=self._controller.handle_graph)
 
-        self.ddDettagli = ft.Dropdown(label="Localization",
-                                   hint_text="Localization", width=200)
+        self.dd_localization = ft.Dropdown(label="Localization",
+                                      hint_text="Selezionare la Localization del gene", width=200)
 
         self.btn_dettagli = ft.ElevatedButton(text="Dettagli",
-                                          tooltip="Stampa dettagli",
-                                          on_click=self._controller.handle_dettagli)
+                                              tooltip="Stampa dettagli del grafo",
+                                              on_click=self._controller.handle_dettagli)
 
         self.btn_path = ft.ElevatedButton(text="Cammino",
-                                          tooltip="Trova cammino",
+                                          tooltip="Trova cammino ottimo",
                                           on_click=self._controller.handle_path)
-        self._controller.fillDDs()
-        self._controller.fillDDLocalization()
+        self._controller.fill_dd_ch()
+        self._controller.fill_dd_localization()
 
-        row1 = ft.Row([self.ddA, self.ddB, self.btn_graph, self.ddDettagli, self.btn_dettagli,  self.btn_path],
+        row1 = ft.Row([self.dd_min_ch, self.dd_max_ch, self.btn_graph, self.dd_localization,
+                       self.btn_dettagli, self.btn_path],
                       alignment=ft.MainAxisAlignment.SPACE_EVENLY)
         self._page.controls.append(row1)
 
@@ -71,7 +74,7 @@ class View(ft.UserControl):
             alignment=ft.alignment.center,
             bgcolor=ft.colors.GREY_200,
             width=450,
-            height=450,
+            height=700,
             border_radius=10,
         )
         container2 = ft.Container(
@@ -81,7 +84,7 @@ class View(ft.UserControl):
             alignment=ft.alignment.center,
             bgcolor=ft.colors.GREY_200,
             width=450,
-            height=450,
+            height=700,
             border_radius=10,
         )
 
@@ -90,7 +93,6 @@ class View(ft.UserControl):
                       spacing=50)
         self._page.controls.append(row2)
         self._page.update()
-
 
     @property
     def controller(self):

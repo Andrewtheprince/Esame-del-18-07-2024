@@ -1,117 +1,266 @@
 from database.DB_connect import DBConnect
 from model.gene import Gene
+from model.interaction import Interaction
 
 
 class DAO():
 
     @staticmethod
-    def getAllGenes():
-        conn = DBConnect.get_connection()
-
+    def get_all_genes():
+        cnx = DBConnect.get_connection()
         result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """SELECT * 
+                    FROM genes"""
+            cursor.execute(query)
 
-        cursor = conn.cursor(dictionary=True)
-        query = """select * from genes"""
+            for row in cursor:
+                result.append(Gene(**row))
 
-        cursor.execute(query)
-
-        for row in cursor:
-            result.append(Gene(**row))
-
-        cursor.close()
-        conn.close()
+            cursor.close()
+            cnx.close()
         return result
 
     @staticmethod
-    def getNodes(a,b):
-        conn = DBConnect.get_connection()
-
+    def get_all_interactions():
+        cnx = DBConnect.get_connection()
         result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """SELECT * 
+                       FROM interactions"""
+            cursor.execute(query)
 
-        cursor = conn.cursor(dictionary=True)
-        query = """select DISTINCT g.GeneID , g.Chromosome , c.Localization 
-                    from genes g, classification c 
-                    WHERE g.Chromosome >= %s
-                    and g.Chromosome <= %s
-                    and c.GeneID = g.GeneID 
-                    order by Chromosome asc
-                    """
+            for row in cursor:
+                result.append(Interaction(**row))
 
-        cursor.execute(query,(a,b,))
-
-        for row in cursor:
-            result.append(Gene(**row))
-
-        cursor.close()
-        conn.close()
+            cursor.close()
+            cnx.close()
         return result
 
     @staticmethod
-    def getEdges(idMap,a,b):
-        conn = DBConnect.get_connection()
-
+    def get_all_chromosomes():
+        cnx = DBConnect.get_connection()
         result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """SELECT DISTINCT g.Chromosome  
+                        FROM genes g
+                        ORDER BY g.Chromosome ASC"""
+            cursor.execute(query)
 
-        cursor = conn.cursor(dictionary=True)
-        query = """SELECT DISTINCTROW g1.GeneID as g1id, g2.GeneID as g2id, g1.Chromosome as ch1, g2.Chromosome as ch2, c1.Localization, c2.Localization, i.Expression_Corr as peso
-                    FROM genes g1, genes g2, classification c1, classification c2, interactions i
-                    WHERE g1.GeneID = c1.GeneID 
-                    and g2.GeneID = c2.GeneID 
-                    and c1.Localization = c2.Localization 
-                    and g1.Chromosome >= %s
-                    and g1.Chromosome <= %s
-                    and g2.Chromosome >= %s
-                    and g2.Chromosome <= %s
-                    and ((i.GeneID1=g1.GeneID AND i.GeneID2=g2.GeneID)
-                         OR (i.GeneID1=g2.GeneID AND i.GeneID2=g1.GeneID)) 
-                    and g1.GeneID < g2.GeneID 
-                    order by g1id, g2id"""
+            for row in cursor:
+                result.append(row["Chromosome"])
 
-        cursor.execute(query,(a,b,a,b,))
-
-        for row in cursor:
-            result.append((idMap[row["g1id"]],idMap[row["g2id"]],row["peso"]))
-
-        cursor.close()
-        conn.close()
+            cursor.close()
+            cnx.close()
         return result
 
     @staticmethod
-    def getChromosomeVals():
-        conn = DBConnect.get_connection()
-
+    def get_all_localizations():
+        cnx = DBConnect.get_connection()
         result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """SELECT DISTINCT c.Localization  
+                        FROM classification c 
+                        ORDER BY c.Localization  ASC"""
+            cursor.execute(query)
 
-        cursor = conn.cursor(dictionary=True)
-        query = """select distinct Chromosome  
-                    from genes g 
-                    order by Chromosome asc"""
+            for row in cursor:
+                result.append(row["Localization"])
 
-        cursor.execute(query)
-
-        for row in cursor:
-            result.append(row["Chromosome"])
-
-        cursor.close()
-        conn.close()
+            cursor.close()
+            cnx.close()
         return result
 
     @staticmethod
-    def getLocalization():
-        conn = DBConnect.get_connection()
-
+    def get_nodes(ch_min:int, ch_max:int):
+        cnx = DBConnect.get_connection()
         result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """SELECT *  
+                        FROM genes g
+                        WHERE g.Chromosome >= %s AND g.Chromosome <= %s"""
+            cursor.execute(query, (ch_min, ch_max))
 
-        cursor = conn.cursor(dictionary=True)
-        query = """select distinct c.Localization
-                    from classification c 
-                    order by Localization asc"""
+            for row in cursor:
+                result.append(Gene(**row))
 
-        cursor.execute(query)
-
-        for row in cursor:
-            result.append(row["Localization"])
-
-        cursor.close()
-        conn.close()
+            cursor.close()
+            cnx.close()
         return result
+
+    @staticmethod
+    def get_localization_gene(g: Gene, localization_map: dict):
+        cnx = DBConnect.get_connection()
+        result = None
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """SELECT c.Localization  
+                        FROM classification c 
+                        WHERE c.GeneID = %s """
+            cursor.execute(query, (g.GeneID,))
+
+            rows = cursor.fetchall()
+            localization_map[g.GeneID] = rows[0]["Localization"]
+            result = rows[0]
+
+            cursor.close()
+            cnx.close()
+        return result
+
+    @staticmethod
+    def get_all_correlations(correlations_map: dict):
+        cnx = DBConnect.get_connection()
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """SELECT *  
+                        FROM interactions i """
+            cursor.execute(query)
+
+            for row in cursor:
+                id1 = row["GeneID1"]
+                id2 = row["GeneID2"]
+                corr = row["Expression_Corr"]
+                correlations_map[(id1, id2)] = corr
+                correlations_map[(id2, id1)] = corr
+            cursor.close()
+            cnx.close()
+
+    @staticmethod
+    def get_peso(g1: Gene, g2: Gene):
+        cnx = DBConnect.get_connection()
+        result = None
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """SELECT i.Expression_Corr as corr 
+                        FROM interactions i 
+                        WHERE i.GeneID1 = %s and i.GeneID2 = %s """
+            cursor.execute(query, (g1.GeneID, g2.GeneID))
+
+            rows = cursor.fetchall()
+
+            if len(rows) > 0:
+                result = rows[0]
+
+            cursor.close()
+            cnx.close()
+        return result
+
+
+if __name__ == "__main__":
+    pass
+    # print(DAO.get_localization_gene("G234347", {}))
+
+    # @staticmethod
+    # def getNodes(a,b):
+    #     conn = DBConnect.get_connection()
+    #
+    #     result = []
+    #
+    #     cursor = conn.cursor(dictionary=True)
+    #     query = """select DISTINCT g.GeneID , g.Chromosome , c.Localization
+    #                 from genes g, classification c
+    #                 WHERE g.Chromosome >= %s
+    #                 and g.Chromosome <= %s
+    #                 and c.GeneID = g.GeneID
+    #                 order by Chromosome asc
+    #                 """
+    #
+    #     cursor.execute(query,(a,b,))
+    #
+    #     for row in cursor:
+    #         result.append(Gene(**row))
+    #
+    #     cursor.close()
+    #     conn.close()
+    #     return result
+    #
+    # @staticmethod
+    # def getEdges(idMap,a,b):
+    #     conn = DBConnect.get_connection()
+    #
+    #     result = []
+    #
+    #     cursor = conn.cursor(dictionary=True)
+    #     query = """SELECT DISTINCTROW g1.GeneID as g1id, g2.GeneID as g2id, g1.Chromosome as ch1, g2.Chromosome as ch2, c1.Localization, c2.Localization, i.Expression_Corr as peso
+    #                 FROM genes g1, genes g2, classification c1, classification c2, interactions i
+    #                 WHERE g1.GeneID = c1.GeneID
+    #                 and g2.GeneID = c2.GeneID
+    #                 and c1.Localization = c2.Localization
+    #                 and g1.Chromosome >= %s
+    #                 and g1.Chromosome <= %s
+    #                 and g2.Chromosome >= %s
+    #                 and g2.Chromosome <= %s
+    #                 and ((i.GeneID1=g1.GeneID AND i.GeneID2=g2.GeneID)
+    #                      OR (i.GeneID1=g2.GeneID AND i.GeneID2=g1.GeneID))
+    #                 and g1.GeneID < g2.GeneID
+    #                 order by g1id, g2id"""
+    #
+    #     cursor.execute(query,(a,b,a,b,))
+    #
+    #     for row in cursor:
+    #         result.append((idMap[row["g1id"]],idMap[row["g2id"]],row["peso"]))
+    #
+    #     cursor.close()
+    #     conn.close()
+    #     return result
+    #
+    # @staticmethod
+    # def getChromosomeVals():
+    #     conn = DBConnect.get_connection()
+    #
+    #     result = []
+    #
+    #     cursor = conn.cursor(dictionary=True)
+    #     query = """select distinct Chromosome
+    #                 from genes g
+    #                 order by Chromosome asc"""
+    #
+    #     cursor.execute(query)
+    #
+    #     for row in cursor:
+    #         result.append(row["Chromosome"])
+    #
+    #     cursor.close()
+    #     conn.close()
+    #     return result
+    #
+    # @staticmethod
+    # def getLocalization():
+    #     conn = DBConnect.get_connection()
+    #
+    #     result = []
+    #
+    #     cursor = conn.cursor(dictionary=True)
+    #     query = """select distinct c.Localization
+    #                 from classification c
+    #                 order by Localization asc"""
+    #
+    #     cursor.execute(query)
+    #
+    #     for row in cursor:
+    #         result.append(row["Localization"])
+    #
+    #     cursor.close()
+    #     conn.close()
+    #     return result
