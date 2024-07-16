@@ -55,7 +55,14 @@ class Controller:
 
 
     def handle_path(self, e):
-        pass
+        self._view.txt_result2.controls.clear()
+        cammino_ottimo, costo_ottimo = self._model.trova_cammino()
+        self._view.txt_result2.controls.append(ft.Text(f"Trovato un cammino ottimo di lunghezza {len(cammino_ottimo)}"))
+        self._view.txt_result2.controls.append(ft.Text(f"Il costo del cammino ottimo è {costo_ottimo}"))
+        self._view.txt_result2.controls.append(ft.Text(f"Le fermate del cammino sono:"))
+        for n in cammino_ottimo:
+            self._view.txt_result2.controls.append(ft.Text(f"{n}"))
+        self._view.update_page()
 
     def fill_dd_ch(self):
         values = self._model.get_chromosomes()
