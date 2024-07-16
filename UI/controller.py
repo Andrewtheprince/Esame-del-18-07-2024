@@ -25,8 +25,7 @@ class Controller:
         self._view.txt_result1.controls.clear()
         self._view.txt_result1.controls.append(ft.Text(f"Creato grafo con {self._model.num_nodes()} nodi"
                                                        f" e {self._model.num_edges()} archi"))
-        self._view.txt_result1.controls.append(ft.Text(f"\nCi sono {len(list(self._model.get_connesse()))} componenti"
-                                                       f" debolmente connesse"))
+
         sorted_nodes = self._model.get_node_max_uscenti()
         n_nodi = min(len(sorted_nodes),5)
         self._view.txt_result1.controls.append(ft.Text(f"\nI {n_nodi} nodi col maggior numero di archi uscenti sono:"))
@@ -48,7 +47,7 @@ class Controller:
         loc = self._view.dd_localization.value
         nodes = self._model.get_nodes_location(loc)
         self._view.txt_result1.controls.clear()
-        self._view.txt_result1.controls.append(ft.Text(f"\n I Geni con location {loc} sono:"))
+        self._view.txt_result1.controls.append(ft.Text(f"\n Ci sono {len(nodes)} geni con location {loc}:"))
         for n in nodes:
             self._view.txt_result1.controls.append(ft.Text(f"{n}"))
         self._view.update_page()

@@ -118,7 +118,7 @@ class DAO():
 
             rows = cursor.fetchall()
             localization_map[g.GeneID] = rows[0]["Localization"]
-            result = rows[0]
+            result = rows[0]["Localization"]
 
             cursor.close()
             cnx.close()

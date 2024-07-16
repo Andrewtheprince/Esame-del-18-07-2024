@@ -38,19 +38,19 @@ class Model:
         nodes = DAO.get_nodes(ch_min, ch_max)
         self._graph.add_nodes_from(nodes)
 
-        for i in range(len(nodes)):
+        for i in range(len(nodes)-1):
             for j in range(i+1, len(nodes)):
-                if self.get_localization_gene(nodes[i]) == self.get_localization_gene(nodes[j]) and nodes[i].GeneID != nodes[j].GeneID:
-                    if (nodes[i].GeneID, nodes[j].GeneID) in self._correlations_map:
-                        peso = self._correlations_map[(nodes[i].GeneID, nodes[j].GeneID)]
-                        if nodes[i].Chromosome < nodes[j].Chromosome:
-                            self._graph.add_edge(nodes[i], nodes[j], weight=peso)
-
-                        elif nodes[i].Chromosome > nodes[j].Chromosome:
-                            self._graph.add_edge(nodes[j], nodes[i], weight=peso)
-                        else:
-                            self._graph.add_edge(nodes[i], nodes[j], weight=peso)
-                            self._graph.add_edge(nodes[j], nodes[i], weight=peso)
+                if (self.get_localization_gene(nodes[i]) == self.get_localization_gene(nodes[j]) and
+                        nodes[i].GeneID != nodes[j].GeneID and
+                        (nodes[i].GeneID, nodes[j].GeneID) in self._correlations_map):
+                    peso = self._correlations_map[(nodes[i].GeneID, nodes[j].GeneID)]
+                    if nodes[i].Chromosome < nodes[j].Chromosome:
+                        self._graph.add_edge(nodes[i], nodes[j], weight=peso)
+                    elif nodes[i].Chromosome > nodes[j].Chromosome:
+                        self._graph.add_edge(nodes[j], nodes[i], weight=peso)
+                    else:
+                        self._graph.add_edge(nodes[i], nodes[j], weight=peso)
+                        self._graph.add_edge(nodes[j], nodes[i], weight=peso)
 
     def num_nodes(self):
         return len(self._graph.nodes)
@@ -67,11 +67,11 @@ class Model:
     def get_node_max_uscenti(self):
         sorted_nodes = sorted(self._graph.nodes(), key=lambda n: self._graph.out_degree(n), reverse=True)
         result = []
-        for i in range(min(len(sorted_nodes), 5) ):
+        for i in range(min(len(sorted_nodes), 5)):
             peso_tot = 0.0
-            for e in self._graph.out_edges(sorted_nodes[i],data=True):
+            for e in self._graph.out_edges(sorted_nodes[i], data=True):
                 peso_tot += float(e[2].get("weight"))
-            result.append((sorted_nodes[i], self._graph.out_degree(sorted_nodes[i]), peso_tot ) )
+            result.append((sorted_nodes[i], self._graph.out_degree(sorted_nodes[i]), peso_tot))
         return result
 
     def get_connesse(self):
@@ -94,7 +94,7 @@ class Model:
         return self._cammino_ottimo, self._peso_ottimo
 
     def _ricorsione(self, parziale, successori):
-        #caso terminale
+        # caso terminale
         if len(successori) == 0:
             if len(parziale) > len(self._cammino_ottimo):
                 self._cammino_ottimo = copy.deepcopy(parziale)
@@ -110,11 +110,11 @@ class Model:
                 self._ricorsione(parziale, nuovi_successori)
                 parziale.pop()
 
-
     def _calcola_successori_ammissibili(self, n, parziale):
         last_essential = parziale[-1].Essential
         if len(parziale) == 1:
-            nuovi_successori = [i for i in list(self._graph.successors(n)) if i not in parziale and i.Essential != last_essential]
+            nuovi_successori = [i for i in list(self._graph.successors(n)) if
+                                i not in parziale and i.Essential != last_essential]
         else:
             last_peso = self._graph.get_edge_data(parziale[-2], parziale[-1])["weight"]
             nuovi_successori = [i for i in list(self._graph.successors(n)) if
@@ -126,6 +126,6 @@ class Model:
         peso = 0
         if len(cammino) == 1:
             return peso
-        for i in range(0, len(cammino)-1):
-            peso += self._graph.get_edge_data(cammino[i], cammino[i+1])["weight"]
+        for i in range(0, len(cammino) - 1):
+            peso += self._graph.get_edge_data(cammino[i], cammino[i + 1])["weight"]
         return peso

@@ -6,7 +6,7 @@ class View(ft.UserControl):
         super().__init__()
         # page stuff
         self._page = page
-        self._page.title = "TdP 2024 - Esame del 04/07/2024 - A"
+        self._page.title = "TdP 2024 - Esame del 18/07/2024 - A"
         self._page.horizontal_alignment = 'CENTER'
         self._page.window_width = 1200
         self._page.window_height = 900
@@ -29,7 +29,7 @@ class View(ft.UserControl):
 
     def load_interface(self):
         # title
-        self._title = ft.Text("TdP 2024 - Esame del 04-07-2024 - A", color="blue", size=24)
+        self._title = ft.Text("TdP 2024 - Esame del 18-07-2024 - A", color="blue", size=24)
         self._page.controls.append(self._title)
 
         # First row with some controls
