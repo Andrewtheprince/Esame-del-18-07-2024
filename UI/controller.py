@@ -4,6 +4,12 @@ from model.model import Model
 
 
 class Controller:
+    def __init__(self, view: View, model: Model):
+        # the view, with the graphical elements of the UI
+        self._view = view
+        # the model, which implements the logic of the program and holds the data
+        self._model = model
+
     def handle_graph(self, e):
         #read user input
         if self._view.dd_min_ch.value is None:
@@ -33,15 +39,10 @@ class Controller:
             self._view.txt_result1.controls.append(ft.Text(f"{sorted_nodes[i][0]} | "
                                                            f"num. archi uscenti: {sorted_nodes[i][1]}  | "
                                                            f"peso tot.: {sorted_nodes[i][2]}"))
+
+        self._view.btn_dettagli.disabled = False
+        self._view.btn_path.disabled = False
         self._view.update_page()
-
-
-
-    def __init__(self, view: View, model: Model):
-        # the view, with the graphical elements of the UI
-        self._view = view
-        # the model, which implements the logic of the program and holds the data
-        self._model = model
 
     def handle_dettagli(self, e):
         loc = self._view.dd_localization.value

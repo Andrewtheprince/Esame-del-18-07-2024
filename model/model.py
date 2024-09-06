@@ -119,7 +119,7 @@ class Model:
             last_peso = self._graph.get_edge_data(parziale[-2], parziale[-1])["weight"]
             nuovi_successori = [i for i in list(self._graph.successors(n)) if
                                 i not in parziale and i.Essential != last_essential
-                                and self._graph.get_edge_data(parziale[-1], i)["weight"] < last_peso]
+                                and self._graph.get_edge_data(parziale[-1], i)["weight"] >= last_peso]
         return nuovi_successori
 
     def _peso_cammino(self, cammino):
