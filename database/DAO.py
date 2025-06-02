@@ -42,12 +42,14 @@ class DAO:
         conn = DBConnect.get_connection()
         result = []
         cursor = conn.cursor(dictionary=True)
-        query = """ SELECT 
-                    FROM 
-                    WHERE  """
+        query = """ select i.*
+                    from interactions i, classification c, classification c2
+                    where i.GeneID1 = c.GeneID and i.GeneID2 =c2.GeneID and c.Localization  = c2.Localization 
+                    and i.GeneID1 != i.GeneID2"""
         cursor.execute(query)
         for row in cursor:
-            result.append(Interaction(**row))
+            if row["GeneID1"] in idMap and row["GeneID2"] in idMap:
+                result.append(Interaction(**row))
         cursor.close()
         conn.close()
         return result

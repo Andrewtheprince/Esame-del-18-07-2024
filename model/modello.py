@@ -15,11 +15,20 @@ class Model:
         self._graph.add_nodes_from(geni)
         for gene in geni:
             self._idMapGeni[gene.GeneID] = gene
-        archi = DAO.get_all_interactions(self._idMapGeni)
-
+        interazioni = DAO.get_all_interactions(self._idMapGeni)
+        for interazione in interazioni:
+            if self._idMapGeni[interazione.GeneID1].Chromosome > self._idMapGeni[interazione.GeneID2].Chromosome:
+                self._graph.add_edge(self._idMapGeni[interazione.GeneID2],self._idMapGeni[interazione.GeneID1], weight = interazione.Expression_Corr)
+            elif self._idMapGeni[interazione.GeneID1].Chromosome < self._idMapGeni[interazione.GeneID2].Chromosome:
+                self._graph.add_edge(self._idMapGeni[interazione.GeneID1],self._idMapGeni[interazione.GeneID2], weight = interazione.Expression_Corr)
+            else:
+                self._graph.add_edge(self._idMapGeni[interazione.GeneID1], self._idMapGeni[interazione.GeneID2], weight=interazione.Expression_Corr)
+                self._graph.add_edge(self._idMapGeni[interazione.GeneID2], self._idMapGeni[interazione.GeneID1], weight=interazione.Expression_Corr)
 
     def getGraphDetails(self):
         return self._graph.number_of_nodes(), self._graph.number_of_edges()
 
     def getTop5Nodes(self):
-        return [("ciao", 3, 4)]
+        top5nodi = [(nodo, len(list(self._graph.successors(nodo))) ,sum(d["weight"] for _,_, d in self._graph.edges(nodo, data = True))) for nodo in self._graph.nodes()]
+        top5nodiOrdinati = sorted(top5nodi, key=lambda x: x[1], reverse=True)
+        return top5nodiOrdinati

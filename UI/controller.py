@@ -28,7 +28,8 @@ class Controller:
         top5 = self._model.getTop5Nodes()
         self._view.txt_result1.controls.append(ft.Text(""))
         self._view.txt_result1.controls.append(ft.Text("I 5 nodi con il maggior numero di archi uscenti sono:"))
-        for nodo in top5:
+        for i in range(5):
+            nodo = top5[i]
             self._view.txt_result1.controls.append(ft.Text(f"{nodo[0]} | num.archi uscenti: {nodo[1]} | peso tot.: {nodo[2]}"))
         self._view.update_page()
 

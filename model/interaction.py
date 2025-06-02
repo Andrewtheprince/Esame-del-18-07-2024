@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-
 @dataclass
 class Interaction:
     GeneID1: str
@@ -13,3 +12,4 @@ class Interaction:
 
     def __hash__(self):
         return hash((self.GeneID1, self.GeneID2))
+
