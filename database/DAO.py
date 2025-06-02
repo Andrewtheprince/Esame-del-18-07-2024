@@ -3,7 +3,7 @@ from model.gene import Gene
 from model.interaction import Interaction
 
 
-class DAO():
+class DAO:
 
     @staticmethod
     def get_all_genes():
